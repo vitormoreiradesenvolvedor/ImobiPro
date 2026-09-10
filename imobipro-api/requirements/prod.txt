@@ -1,0 +1,4 @@
+-r base.txt
+
+sentry-sdk==2.34.1
+django-prometheus==2.4.1

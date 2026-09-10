@@ -1,0 +1,24 @@
+[tool.ruff]
+line-length = 92
+target-version = "py312"
+exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ", "S", "C4"]
+ignore = ["S101"]  # assert é a linguagem do pytest
+
+[tool.ruff.lint.per-file-ignores]
+"*/tests/*" = ["S105", "S106"]
+"conftest.py" = ["S105", "S106"]
+"config/settings/*" = ["F403", "F405"]
+
+[tool.black]
+line-length = 92
+exclude = "migrations"
+
+[tool.coverage.run]
+# Caminhos relativos à raiz do projeto: é o formato que o SonarQube
+# consegue casar com os arquivos analisados.
+relative_files = true
+source = ["apps", "config"]
+omit = ["*/migrations/*", "*/tests/*", "config/*", "manage.py"]
