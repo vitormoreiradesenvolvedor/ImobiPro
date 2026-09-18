@@ -1,0 +1,143 @@
+@import 'tailwindcss';
+
+/*
+  A cor primária é do tenant: o back devolve `cor_primaria` no /auth/me/ (e no
+  /public/<subdominio>/identidade/, para o site aberto) e a store escreve na
+  variável abaixo. Tudo que é "marca" usa ela.
+
+  Os tons derivados existem para a interface não virar um bloco branco com um
+  botão colorido: cabeçalho, superfície e realce saem todos da mesma cor, sem
+  paleta fixa e sem pedir para a imobiliária escolher cinco cores.
+*/
+@theme {
+  --color-marca: var(--cor-primaria, #0f766e);
+  --color-marca-profunda: color-mix(in oklab, var(--cor-primaria, #0f766e), #04120f 62%);
+  --color-marca-escura: color-mix(in oklab, var(--cor-primaria, #0f766e), #04120f 35%);
+  --color-marca-clara: color-mix(in oklab, var(--cor-primaria, #0f766e), white 55%);
+  --color-marca-suave: color-mix(in oklab, var(--cor-primaria, #0f766e), white 92%);
+  --color-marca-borda: color-mix(in oklab, var(--cor-primaria, #0f766e), white 78%);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --cor-primaria: #0f766e;
+  --sombra-cartao: 0 1px 2px rgb(15 23 42 / 0.06), 0 8px 24px -12px rgb(15 23 42 / 0.18);
+}
+
+/* Valores monetários alinham por dígito tabela financeira legível. */
+.numerico {
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+  Fundo das páginas: branco puro em tela cheia cansa e deixa o produto com cara
+  de rascunho. Um véu da própria marca sobre o cinza dá profundidade sem roubar
+  atenção do conteúdo, que continua em cartão branco.
+*/
+.superficie {
+  background-color: color-mix(in oklab, var(--cor-primaria, #0f766e) 7%, var(--color-slate-50));
+  background-image:
+    radial-gradient(
+      68rem 34rem at 12% -12%,
+      color-mix(in oklab, var(--cor-primaria, #0f766e), transparent 78%),
+      transparent 60%
+    ),
+    radial-gradient(
+      52rem 30rem at 100% 0%,
+      color-mix(in oklab, var(--cor-primaria, #0f766e), transparent 88%),
+      transparent 60%
+    );
+  background-attachment: fixed;
+}
+
+/* Barra escura do topo, na cor do tenant. Usada no site e no portal. */
+.faixa-marca {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-marca-profunda) 0%,
+    var(--color-marca-escura) 52%,
+    color-mix(in oklab, var(--cor-primaria, #0f766e), #04120f 18%) 100%
+  );
+}
+
+/* Cartão padrão: sombra curta em vez de borda dura. */
+.cartao {
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--sombra-cartao);
+}
+
+/*
+  Tema escuro.
+
+  Em vez de uma segunda folha de estilo e de uma variante `dark:` em cada tela,
+  o tema troca os tokens de cor que as classes do Tailwind já consomem: quem
+  escreveu `bg-slate-50` ou `text-slate-900` continua valendo, só que apontando
+  para a escala invertida. A interface inteira vira de uma vez, e tela nova
+  nasce nos dois temas sem trabalho extra.
+*/
+:root[data-tema='escuro'] {
+  color-scheme: dark;
+
+  --color-white: #121a18;
+  --color-slate-50: #0d1413;
+  --color-slate-100: #16201e;
+  --color-slate-200: #243330;
+  --color-slate-300: #32443f;
+  --color-slate-400: #8ba49c;
+  --color-slate-500: #a6bcb4;
+  --color-slate-600: #c3d6ce;
+  --color-slate-700: #d9e7e1;
+  --color-slate-800: #e9f2ee;
+  --color-slate-900: #f4faf7;
+  --color-slate-950: #ffffff;
+
+  /* O chip da marca é claro no tema claro e escuro no tema escuro. */
+  --color-marca-suave: color-mix(in oklab, var(--cor-primaria, #0f766e), #04120f 72%);
+  --color-marca-borda: color-mix(in oklab, var(--cor-primaria, #0f766e), #04120f 48%);
+  --color-marca-escura: color-mix(in oklab, var(--cor-primaria, #0f766e), white 62%);
+
+  /* Estados: o fundo fica escuro e o texto, claro. */
+  --color-red-50: #2b1416;
+  --color-red-100: #3a1b1e;
+  --color-red-600: #fca5a5;
+  --color-red-700: #fecaca;
+  --color-amber-50: #2a2010;
+  --color-amber-200: #4b3a17;
+  --color-amber-600: #fcd34d;
+  --color-amber-700: #fde68a;
+  --color-amber-800: #fef3c7;
+  --color-amber-900: #fffbeb;
+  --color-emerald-50: #0e2a20;
+  --color-emerald-100: #123b2c;
+  --color-emerald-200: #1d5942;
+  --color-emerald-600: #6ee7b7;
+  --color-emerald-700: #a7f3d0;
+  --color-emerald-800: #d1fae5;
+  --color-emerald-900: #ecfdf5;
+  --color-sky-700: #bae6fd;
+  --color-sky-800: #e0f2fe;
+
+  --sombra-cartao: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+}
+
+/*
+  Trechos que já nascem escuros no tema claro: menu lateral, faixa da marca,
+  avisos e véu dos modais. Inverter de novo deixaria texto branco sobre fundo
+  branco, então aqui a escala original é restaurada.
+*/
+:root[data-tema='escuro'] .faixa-marca,
+:root[data-tema='escuro'] .paleta-fixa {
+  --color-white: #ffffff;
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+}
