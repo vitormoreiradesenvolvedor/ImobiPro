@@ -1,0 +1,65 @@
+{% extends "pdf/base.html" %}
+
+{% block titulo %}Extrato de repasse {{ repasse.competencia|date:"m/Y" }}{% endblock %}
+
+{% block cabecalho_documento %}
+  <div><strong>Extrato de repasse</strong></div>
+  <div>Competência {{ repasse.competencia|date:"m/Y" }}</div>
+{% endblock %}
+
+{% block conteudo %}
+  <h2>Proprietário</h2>
+  <table>
+    <tr><th style="width: 30%">Nome</th><td>{{ proprietario.nome }}</td></tr>
+    <tr><th>CPF/CNPJ</th><td>{{ proprietario.cpf_cnpj }}</td></tr>
+    <tr><th>Imóvel</th>
+        <td>{{ contrato.imovel.codigo }} {{ contrato.imovel.endereco }}</td></tr>
+    <tr><th>Contrato</th><td>{{ contrato.numero }}</td></tr>
+  </table>
+
+  <h2>Composição do repasse</h2>
+  <table>
+    <tr><th>Aluguel recebido</th>
+        <td class="numerico">R$ {{ repasse.valor_bruto }}</td></tr>
+    <tr><th>Taxa de administração ({{ contrato.taxa_administracao_percent }}%)</th>
+        <td class="numerico">− R$ {{ repasse.taxa_administracao }}</td></tr>
+    {% for retencao in repasse.retencoes %}
+      <tr><th>{{ retencao.descricao }}</th>
+          <td class="numerico">− R$ {{ retencao.valor }}</td></tr>
+    {% endfor %}
+    <tr>
+      <th style="background: #ecfdf5"><strong>Valor líquido a receber</strong></th>
+      <td class="numerico" style="background: #ecfdf5">
+        <strong>R$ {{ repasse.valor_liquido }}</strong>
+      </td>
+    </tr>
+  </table>
+
+  {% if cobranca %}
+    <h2>Cobrança do inquilino</h2>
+    <table>
+      <thead><tr><th>Item</th><th class="numerico">Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Aluguel</td><td class="numerico">R$ {{ cobranca.valor_aluguel }}</td></tr>
+        {% if cobranca.valor_condominio %}
+          <tr><td>Condomínio</td><td class="numerico">R$ {{ cobranca.valor_condominio }}</td></tr>
+        {% endif %}
+        {% if cobranca.valor_iptu %}
+          <tr><td>IPTU</td><td class="numerico">R$ {{ cobranca.valor_iptu }}</td></tr>
+        {% endif %}
+        {% if cobranca.valor_multa %}
+          <tr><td>Multa por atraso</td><td class="numerico">R$ {{ cobranca.valor_multa }}</td></tr>
+        {% endif %}
+        {% if cobranca.valor_juros %}
+          <tr><td>Juros de mora</td><td class="numerico">R$ {{ cobranca.valor_juros }}</td></tr>
+        {% endif %}
+        <tr><td><strong>Total pago em {{ cobranca.pago_em|date:"d/m/Y" }}</strong></td>
+            <td class="numerico"><strong>R$ {{ cobranca.valor_pago }}</strong></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size: 9pt; color: #475569">
+      Condomínio e IPTU são repassados a terceiros e por isso não compõem a base
+      do repasse ao proprietário.
+    </p>
+  {% endif %}
+{% endblock %}

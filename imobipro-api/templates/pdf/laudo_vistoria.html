@@ -1,0 +1,54 @@
+{% extends "pdf/base.html" %}
+
+{% block titulo %}Laudo de vistoria {{ contrato.numero }}{% endblock %}
+
+{% block cabecalho_documento %}
+  <div><strong>Laudo de vistoria de {{ vistoria.get_tipo_display|lower }}</strong></div>
+  <div>Contrato {{ contrato.numero }}</div>
+{% endblock %}
+
+{% block conteudo %}
+  <table>
+    <tr><th style="width: 30%">Imóvel</th>
+        <td>{{ contrato.imovel.codigo }} {{ contrato.imovel.endereco }}</td></tr>
+    <tr><th>Data da vistoria</th><td>{{ vistoria.realizada_em|date:"d/m/Y" }}</td></tr>
+    <tr><th>Vistoriador</th>
+        <td>{{ vistoria.vistoriador.nome_completo|default:"" }}</td></tr>
+    <tr><th>Itens avaliados</th>
+        <td>{{ vistoria.total_itens }} ({{ vistoria.itens_com_problema }} com apontamento)</td></tr>
+  </table>
+
+  {% for comodo, itens in itens_por_comodo.items %}
+    <h2>{{ comodo }}</h2>
+    <table>
+      <thead>
+        <tr><th style="width: 30%">Item</th><th style="width: 15%">Estado</th>
+            <th>Observação</th><th style="width: 12%">Fotos</th></tr>
+      </thead>
+      <tbody>
+        {% for item in itens %}
+          <tr>
+            <td>{{ item.item }}</td>
+            <td>{{ item.get_estado_display }}</td>
+            <td>{{ item.observacao|default:"" }}</td>
+            <td class="numerico">{{ item.fotos.count }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+
+  {% if vistoria.observacoes_gerais %}
+    <h2>Observações gerais</h2>
+    <p>{{ vistoria.observacoes_gerais|linebreaksbr }}</p>
+  {% endif %}
+
+  <div class="assinaturas">
+    <div class="assinatura">
+      {% if contrato.locatario %}{{ contrato.locatario.pessoa.nome }}{% endif %}<br />Locatário
+    </div>
+    <div class="assinatura">
+      {{ tenant.nome_fantasia|default:tenant.razao_social }}<br />Imobiliária
+    </div>
+  </div>
+{% endblock %}

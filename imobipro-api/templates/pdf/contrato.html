@@ -1,0 +1,95 @@
+{% extends "pdf/base.html" %}
+
+{% block titulo %}Contrato {{ contrato.numero }}{% endblock %}
+
+{% block cabecalho_documento %}
+  <div><strong>{{ contrato.get_tipo_display }}</strong></div>
+  <div>Contrato {{ contrato.numero }}</div>
+{% endblock %}
+
+{% block conteudo %}
+  <h2>Objeto</h2>
+  <table>
+    <tr><th style="width: 30%">Imóvel</th>
+        <td>{{ contrato.imovel.codigo }} {{ contrato.imovel.titulo }}</td></tr>
+    <tr><th>Endereço</th><td>{{ contrato.imovel.endereco }}</td></tr>
+    <tr><th>Matrícula</th><td>{{ contrato.imovel.matricula|default:"" }}</td></tr>
+    <tr><th>Tipo</th><td>{{ contrato.imovel.get_tipo_display }}</td></tr>
+  </table>
+
+  <h2>Partes</h2>
+  <table>
+    <thead>
+      <tr><th>Papel</th><th>Nome</th><th>CPF/CNPJ</th><th class="numerico">Participação</th></tr>
+    </thead>
+    <tbody>
+      {% for parte in partes %}
+        <tr>
+          <td>{{ parte.get_papel_display }}</td>
+          <td>{{ parte.pessoa.nome }}</td>
+          <td>{{ parte.pessoa.cpf_cnpj }}</td>
+          <td class="numerico">{{ parte.percentual }}%</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Nenhuma parte cadastrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Condições</h2>
+  <table>
+    <tr><th style="width: 30%">Vigência</th>
+        <td>{{ contrato.data_inicio|date:"d/m/Y" }}
+          {% if contrato.data_fim %} a {{ contrato.data_fim|date:"d/m/Y" }}{% endif %}</td></tr>
+    <tr><th>Valor</th><td>R$ {{ contrato.valor }}</td></tr>
+    {% if contrato.tipo == "LOCACAO" %}
+      <tr><th>Vencimento</th><td>Todo dia {{ contrato.dia_vencimento }}</td></tr>
+      <tr><th>Reajuste</th><td>{{ contrato.get_indice_reajuste_display }} (anual)</td></tr>
+      <tr><th>Taxa de administração</th>
+          <td>{{ contrato.taxa_administracao_percent }}% sobre o aluguel</td></tr>
+      <tr><th>Garantia</th>
+          <td>{{ contrato.get_garantia_tipo_display }}
+            {% if contrato.garantia_valor %} R$ {{ contrato.garantia_valor }}{% endif %}</td></tr>
+      <tr><th>Multa rescisória</th>
+          <td>{{ contrato.multa_rescisoria_meses }} aluguéis, proporcional ao prazo restante</td></tr>
+      <tr><th>Encargos</th>
+          <td>
+            {% if contrato.inclui_condominio %}Condomínio{% endif %}
+            {% if contrato.inclui_iptu %}{% if contrato.inclui_condominio %} e {% endif %}IPTU{% endif %}
+            {% if not contrato.inclui_condominio and not contrato.inclui_iptu %}Não inclusos{% endif %}
+          </td></tr>
+    {% endif %}
+  </table>
+
+  {% if contrato.observacoes %}
+    <h2>Observações</h2>
+    <p>{{ contrato.observacoes|linebreaksbr }}</p>
+  {% endif %}
+
+  {% if reajustes %}
+    <h2>Reajustes aplicados</h2>
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Índice</th><th class="numerico">%</th>
+            <th class="numerico">De</th><th class="numerico">Para</th></tr>
+      </thead>
+      <tbody>
+        {% for reajuste in reajustes %}
+          <tr>
+            <td>{{ reajuste.data_aplicacao|date:"d/m/Y" }}</td>
+            <td>{{ reajuste.indice }}</td>
+            <td class="numerico">{{ reajuste.percentual }}</td>
+            <td class="numerico">R$ {{ reajuste.valor_anterior }}</td>
+            <td class="numerico">R$ {{ reajuste.valor_novo }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <div class="assinaturas">
+    {% for parte in partes %}
+      <div class="assinatura">{{ parte.pessoa.nome }}<br />{{ parte.get_papel_display }}</div>
+    {% endfor %}
+  </div>
+{% endblock %}
