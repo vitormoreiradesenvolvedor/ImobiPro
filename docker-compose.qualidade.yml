@@ -1,0 +1,43 @@
+# Stack de análise estática. Sobe só quando se quer medir qualidade:
+#   docker compose -f docker-compose.qualidade.yml up -d sonarqube
+#   docker compose -f docker-compose.qualidade.yml run --rm scanner
+name: imobipro-qualidade
+
+services:
+  sonarqube:
+    image: sonarqube:community
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "${SONAR_PORT:-9000}:9000"
+    volumes:
+      - sonar_dados:/opt/sonarqube/data
+      - sonar_extensoes:/opt/sonarqube/extensions
+      - sonar_logs:/opt/sonarqube/logs
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:9000/api/system/status | grep -q UP",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 30
+      start_period: 90s
+
+  scanner:
+    image: sonarsource/sonar-scanner-cli:latest
+    profiles: ["scan"]
+    environment:
+      SONAR_HOST_URL: http://sonarqube:9000
+      SONAR_TOKEN: ${SONAR_TOKEN:-}
+    volumes:
+      - .:/usr/src
+    depends_on:
+      sonarqube:
+        condition: service_healthy
+
+volumes:
+  sonar_dados:
+  sonar_extensoes:
+  sonar_logs:
