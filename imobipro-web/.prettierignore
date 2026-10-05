@@ -1,0 +1,8 @@
+dist/
+coverage/
+node_modules/
+# Saída de ferramenta: relatório, traces e capturas do Playwright.
+tests/e2e/relatorio/
+tests/e2e/telas/
+test-results/
+midia/
