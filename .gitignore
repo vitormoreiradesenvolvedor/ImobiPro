@@ -1,0 +1,33 @@
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Dependências e saídas de build
+node_modules/
+dist/
+coverage/
+__pycache__/
+*.pyc
+
+# Mídia pesada: vídeo de apresentação, trilha, modelo de voz e gravação bruta.
+# São centenas de MB gerados por script, não código do projeto.
+imobipro-web/midia/
+
+# Uploads de desenvolvimento (fotos de imóveis, laudos, documentos).
+imobipro-api/media/
+
+# Relatórios de cobertura
+imobipro-api/coverage.xml
+imobipro-api/cobertura.xml
+imobipro-api/.coverage
+
+# Saída de ferramenta de teste
+imobipro-web/test-results/
+imobipro-web/tests/e2e/relatorio/
+imobipro-web/tests/e2e/telas/
+
+# Anotações locais de ferramenta, fora do projeto
+resume_claude_session.txt
+gemini-code-*.md
