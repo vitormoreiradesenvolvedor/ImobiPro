@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0F766E" />
+    <title>ImobiPro Gestão Imobiliária</title>
+    <script>
+      // O tema é aplicado antes da primeira pintura: ler isto depois do Vue
+      // subir faria a tela piscar branca antes de escurecer.
+      try {
+        var salvo = localStorage.getItem('imobipro-tema')
+        var escuro = window.matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.dataset.tema =
+          salvo === 'claro' || salvo === 'escuro' ? salvo : escuro ? 'escuro' : 'claro'
+      } catch (erro) {
+        document.documentElement.dataset.tema = 'claro'
+      }
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased">
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
