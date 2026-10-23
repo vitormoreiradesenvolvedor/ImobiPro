@@ -1,0 +1,64 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>{% block titulo %}ImobiPro{% endblock %}</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 2cm 1.8cm;
+        @bottom-center {
+          content: "Página " counter(page) " de " counter(pages);
+          font-size: 9pt;
+          color: #64748b;
+        }
+      }
+      body {
+        font-family: "DejaVu Sans", sans-serif;
+        font-size: 10pt;
+        color: #0f172a;
+        line-height: 1.5;
+      }
+      header.marca {
+        border-bottom: 2px solid {{ tenant.cor_primaria|default:"#0F766E" }};
+        padding-bottom: 8pt;
+        margin-bottom: 16pt;
+        display: flex;
+        justify-content: space-between;
+      }
+      header.marca h1 { font-size: 14pt; margin: 0; }
+      header.marca .documento { text-align: right; font-size: 9pt; color: #475569; }
+      h2 { font-size: 11pt; margin: 16pt 0 6pt; text-transform: uppercase; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; }
+      th, td { text-align: left; padding: 4pt 6pt; border-bottom: 0.5pt solid #e2e8f0; }
+      th { background: #f1f5f9; font-size: 9pt; }
+      .numerico { text-align: right; font-variant-numeric: tabular-nums; }
+      .assinaturas { margin-top: 40pt; display: flex; gap: 30pt; }
+      .assinatura { flex: 1; border-top: 0.5pt solid #0f172a; padding-top: 4pt;
+                    font-size: 9pt; text-align: center; }
+      .rodape { margin-top: 24pt; font-size: 8pt; color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <header class="marca">
+      <div>
+        <h1>{{ tenant.nome_fantasia|default:tenant.razao_social }}</h1>
+        <div style="font-size: 9pt; color: #475569">
+          CNPJ {{ tenant.cnpj }}{% if tenant.creci %} · CRECI {{ tenant.creci }}{% endif %}
+        </div>
+      </div>
+      <div class="documento">
+        {% block cabecalho_documento %}{% endblock %}
+        <div>Emitido em {{ emitido_em|date:"d/m/Y H:i" }}</div>
+      </div>
+    </header>
+
+    {% block conteudo %}{% endblock %}
+
+    <div class="rodape">
+      Documento gerado pelo ImobiPro. Confira sempre a versão assinada arquivada
+      na imobiliária.
+    </div>
+  </body>
+</html>
