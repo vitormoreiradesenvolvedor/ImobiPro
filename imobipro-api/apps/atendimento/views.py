@@ -198,8 +198,7 @@ class AberturaTicketPublicaView(APIView):
                 "protocolo": ticket.protocolo,
                 "status": ticket.status,
                 "mensagem": (
-                    "Pedido registrado. Guarde o protocolo para acompanhar o "
-                    "atendimento."
+                    "Pedido registrado. Guarde o protocolo para acompanhar o atendimento."
                 ),
             },
             status=status.HTTP_201_CREATED,

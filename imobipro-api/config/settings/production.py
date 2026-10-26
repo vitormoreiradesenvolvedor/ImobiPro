@@ -40,6 +40,4 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)  # noqa: F405
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")  # noqa: F405
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")  # noqa: F405
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = env(
-    "DEFAULT_FROM_EMAIL", default="nao-responda@imobipro.com.br"
-)  # noqa: F405
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="nao-responda@imobipro.com.br")  # noqa: F405

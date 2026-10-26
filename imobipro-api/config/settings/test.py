@@ -23,5 +23,6 @@ REFRESH_COOKIE_SAMESITE = "Lax"
 # Mantém os mesmos escopos de produção, com teto alto: a suíte não deve
 # esbarrar em throttling, mas escopo faltando aqui vira 500 só em teste.
 REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = dict.fromkeys(  # noqa: F405
-    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"], "10000/min"  # noqa: F405
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"],
+    "10000/min",  # noqa: F405
 )

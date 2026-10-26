@@ -101,8 +101,7 @@ def lancar_despesa_de_repasse(repasse, request=None):
         repasse.tenant,
         TipoTransacao.DESPESA,
         CategoriaFinanceira.REPASSE_PROPRIETARIO,
-        f"Repasse ao proprietário {repasse.contrato.numero} "
-        f"({repasse.competencia:%m/%Y})",
+        f"Repasse ao proprietário {repasse.contrato.numero} ({repasse.competencia:%m/%Y})",
         repasse.valor_liquido,
         repasse.competencia,
         request=request,

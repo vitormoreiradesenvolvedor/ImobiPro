@@ -17,7 +17,11 @@ from django.core.files.base import ContentFile
 from apps.accounts.models import Papel, Tenant, Usuario
 from apps.atendimento.services import abrir_ticket
 from apps.candidaturas.models import DOCUMENTOS_OBRIGATORIOS
-from apps.candidaturas.services import abrir_candidatura, anexar_documento, conferir_documento
+from apps.candidaturas.services import (
+    abrir_candidatura,
+    anexar_documento,
+    conferir_documento,
+)
 from apps.contratos.models import Contrato, PapelParte, StatusContrato
 from apps.imoveis.models import Imovel
 
@@ -78,7 +82,9 @@ conferir_documento(
 )
 
 contrato = (
-    Contrato.objects.filter(tenant=tenant, status=StatusContrato.ATIVO).order_by("numero").first()
+    Contrato.objects.filter(tenant=tenant, status=StatusContrato.ATIVO)
+    .order_by("numero")
+    .first()
 )
 pessoa = contrato.partes.filter(papel=PapelParte.LOCATARIO).first().pessoa
 senha = secrets.token_urlsafe(9)
