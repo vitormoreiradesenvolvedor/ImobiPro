@@ -16,6 +16,14 @@ mais o **guia de uso gamificado** (tours guiados e missões conferidas no dado r
 
 Disciplina de Programação WEB, UFLA, 2026/2.
 
+## Fluxo de branches
+
+| Branch | Para que serve |
+|---|---|
+| `main` | versão avaliada, sempre funcionando |
+| `develop` | integração do que está pronto, antes de ir para a `main` |
+| `feature/*` | uma frente de trabalho por vez, nasce da `develop` e volta para ela |
+
 ## Tecnologias utilizadas
 
 | Camada | Tecnologia |
