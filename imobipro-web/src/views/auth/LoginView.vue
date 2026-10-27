@@ -95,6 +95,16 @@ async function entrar() {
             Entrar
           </BaseButton>
         </form>
+
+        <p class="mt-6 text-center text-sm text-slate-500">
+          Sua imobiliária ainda não usa o ImobiPro?
+          <RouterLink
+            :to="{ name: 'cadastro' }"
+            class="font-semibold text-marca hover:underline"
+          >
+            Cadastre-se
+          </RouterLink>
+        </p>
       </div>
     </div>
 

@@ -233,3 +233,23 @@ export function zerarOperacao(tenant = 'horizonte') {
     { cwd: raiz, stdio: 'pipe' },
   )
 }
+
+/** Apaga a imobiliária criada pelo teste de cadastre-se, com a equipe dela. */
+export function apagarImobiliaria(subdominio) {
+  const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..')
+  execFileSync(
+    'docker',
+    [
+      'compose',
+      'exec',
+      '-T',
+      'api',
+      'python',
+      'manage.py',
+      'shell',
+      '-c',
+      `from apps.accounts.models import Tenant; Tenant.objects.filter(subdominio=${JSON.stringify(subdominio)}).delete()`,
+    ],
+    { cwd: raiz, stdio: 'pipe' },
+  )
+}
