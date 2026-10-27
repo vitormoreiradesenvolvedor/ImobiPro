@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from unfold.admin import ModelAdmin
 
 from apps.pessoas.models import Endereco, Pessoa
@@ -16,4 +15,5 @@ class PessoaAdmin(ModelAdmin):
 @admin.register(Endereco)
 class EnderecoAdmin(ModelAdmin):
     list_display = ["logradouro", "numero", "bairro", "cidade", "uf"]
+    list_filter = ["uf", "cidade"]
     search_fields = ["logradouro", "bairro", "cidade", "cep"]
