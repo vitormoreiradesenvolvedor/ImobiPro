@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/auth'
 vi.mock('@/services/auth.service', () => ({
   authService: {
     login: vi.fn(),
+    cadastrar: vi.fn(),
     refresh: vi.fn(),
     logout: vi.fn(),
     perfil: vi.fn(),
@@ -47,6 +48,28 @@ describe('store de autenticação', () => {
     expect(auth.autenticado).toBe(true)
     expect(auth.tenant.nome_fantasia).toBe('Horizonte Imóveis')
     expect(auth.pode('ver_financeiro')).toBe(true)
+  })
+
+  it('abre a sessão logo após o cadastro', async () => {
+    authService.cadastrar.mockResolvedValue({ data: { access: 'tok', user: PERFIL } })
+    const auth = useAuthStore()
+
+    expect(await auth.cadastrar({ email: PERFIL.email })).toBe(true)
+    expect(auth.autenticado).toBe(true)
+    expect(auth.pode('gerenciar_usuarios')).toBe(true)
+  })
+
+  it('guarda os erros de campo quando o cadastro falha', async () => {
+    authService.cadastrar.mockRejectedValue({
+      response: {
+        data: { detail: 'Dados inválidos.', campos: { cnpj: ['CNPJ deve ter 14 dígitos.'] } },
+      },
+    })
+    const auth = useAuthStore()
+
+    expect(await auth.cadastrar({})).toBe(false)
+    expect(auth.erro).toBe('Dados inválidos.')
+    expect(auth.errosCampos.cnpj).toEqual(['CNPJ deve ter 14 dígitos.'])
   })
 
   it('aplica a cor do tenant na variável CSS', async () => {

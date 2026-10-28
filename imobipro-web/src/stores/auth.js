@@ -47,6 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
   const permissoes = ref({})
   const carregando = ref(false)
   const erro = ref(null)
+  const errosCampos = ref({})
 
   const autenticado = computed(() => usuario.value !== null)
   const papel = computed(() => usuario.value?.papel ?? null)
@@ -81,6 +82,31 @@ export const useAuthStore = defineStore('auth', () => {
       return true
     } catch (falha) {
       erro.value = falha.response?.data?.detail ?? 'Não foi possível entrar. Tente novamente.'
+      return false
+    } finally {
+      carregando.value = false
+    }
+  }
+
+  /**
+   * Cadastre-se: a API cria imobiliária e administrador e já devolve a sessão
+   * no mesmo formato do login. Erros de campo voltam em `errosCampos` para a
+   * tela marcar cada input.
+   */
+  async function cadastrar(dados) {
+    carregando.value = true
+    erro.value = null
+    errosCampos.value = {}
+    try {
+      const { data } = await authService.cadastrar(dados)
+      definirAccessToken(data.access)
+      aplicarPerfil(data.user)
+      marcador.gravar()
+      return true
+    } catch (falha) {
+      const corpo = falha.response?.data
+      errosCampos.value = corpo?.campos ?? {}
+      erro.value = corpo?.detail ?? 'Não foi possível concluir o cadastro. Tente novamente.'
       return false
     } finally {
       carregando.value = false
@@ -143,9 +169,11 @@ export const useAuthStore = defineStore('auth', () => {
     permissoes,
     carregando,
     erro,
+    errosCampos,
     autenticado,
     papel,
     login,
+    cadastrar,
     logout,
     restaurarSessao,
     limpar,

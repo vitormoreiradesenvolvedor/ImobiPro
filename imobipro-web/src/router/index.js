@@ -17,6 +17,12 @@ const routes = [
     meta: { publico: true },
   },
   {
+    path: '/cadastro',
+    name: 'cadastro',
+    component: () => import('@/views/auth/CadastroView.vue'),
+    meta: { publico: true },
+  },
+  {
     path: '/',
     component: () => import('@/components/layout/AppLayout.vue'),
     children: [
@@ -198,7 +204,7 @@ router.beforeEach((para) => {
     return { name: 'dashboard' }
   }
 
-  if (para.name === 'login' && auth.autenticado) {
+  if (['login', 'cadastro'].includes(para.name) && auth.autenticado) {
     return { name: ehCliente ? 'portal' : 'dashboard' }
   }
   // Rota com permissão exigida devolve o usuário ao dashboard em vez de
