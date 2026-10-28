@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from unfold.admin import ModelAdmin
 
 from apps.locacao.models import Cobranca, EventoCobranca, Repasse

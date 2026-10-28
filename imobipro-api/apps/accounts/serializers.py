@@ -1,4 +1,9 @@
+import re
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -130,6 +135,73 @@ class LoginSerializer(TokenObtainPairSerializer):
 
         dados["user"] = PerfilSerializer(self.user, context=self.context).data
         return dados
+
+
+class CadastroSerializer(serializers.Serializer):
+    """Cadastre-se: a imobiliária nova entra com o primeiro administrador.
+
+    Quem se cadastra é sempre ADMIN do próprio tenant; os demais papéis são
+    criados por ele dentro do painel, nunca pela porta pública.
+    """
+
+    razao_social = serializers.CharField(max_length=255)
+    nome_fantasia = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    cnpj = serializers.CharField(max_length=18)
+    subdominio = serializers.SlugField(max_length=63)
+    nome_completo = serializers.CharField(max_length=255)
+    email = serializers.EmailField()
+    telefone = serializers.CharField(max_length=20, required=False, allow_blank=True)
+    senha = serializers.CharField(write_only=True, min_length=10)
+
+    def validate_cnpj(self, valor):
+        # Aceita com ou sem máscara; grava só os dígitos, como o resto do sistema.
+        digitos = re.sub(r"\D", "", valor)
+        if len(digitos) != 14:
+            raise serializers.ValidationError("CNPJ deve ter 14 dígitos.")
+        if Tenant.objects.filter(cnpj=digitos).exists():
+            raise serializers.ValidationError("Já existe uma imobiliária com este CNPJ.")
+        return digitos
+
+    def validate_subdominio(self, valor):
+        valor = valor.lower()
+        if Tenant.objects.filter(subdominio=valor).exists():
+            raise serializers.ValidationError("Este endereço já está em uso.")
+        return valor
+
+    def validate_email(self, valor):
+        valor = valor.lower()
+        if Usuario.objects.filter(email__iexact=valor).exists():
+            raise serializers.ValidationError("Já existe uma conta com este e-mail.")
+        return valor
+
+    def validate(self, attrs):
+        # Os validadores do AUTH_PASSWORD_VALIDATORS comparam a senha com o
+        # nome e o e-mail, então rodam com um usuário provisório em memória.
+        provisorio = Usuario(email=attrs["email"], nome_completo=attrs["nome_completo"])
+        try:
+            validate_password(attrs["senha"], user=provisorio)
+        except DjangoValidationError as erro:
+            raise serializers.ValidationError({"senha": list(erro.messages)}) from erro
+        return attrs
+
+    @transaction.atomic
+    def create(self, validated_data):
+        tenant = Tenant.objects.create(
+            razao_social=validated_data["razao_social"],
+            nome_fantasia=validated_data.get("nome_fantasia", ""),
+            cnpj=validated_data["cnpj"],
+            subdominio=validated_data["subdominio"],
+            telefone=validated_data.get("telefone", ""),
+            email_contato=validated_data["email"],
+        )
+        return Usuario.objects.create_user(
+            email=validated_data["email"],
+            password=validated_data["senha"],
+            nome_completo=validated_data["nome_completo"],
+            telefone=validated_data.get("telefone", ""),
+            papel=Papel.ADMIN,
+            tenant=tenant,
+        )
 
 
 class SolicitacaoResetSenhaSerializer(serializers.Serializer):

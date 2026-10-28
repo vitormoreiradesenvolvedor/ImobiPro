@@ -234,8 +234,7 @@ class Imovel(TenantBaseModel, SoftDeleteModel):
 
         if self.total_fotos < MINIMO_DE_FOTOS_PARA_PUBLICAR:
             pendencias.append(
-                f"Mínimo de {MINIMO_DE_FOTOS_PARA_PUBLICAR} fotos "
-                f"(tem {self.total_fotos})."
+                f"Mínimo de {MINIMO_DE_FOTOS_PARA_PUBLICAR} fotos (tem {self.total_fotos})."
             )
         if not self.endereco.geocodificado:
             pendencias.append("Endereço sem latitude/longitude.")

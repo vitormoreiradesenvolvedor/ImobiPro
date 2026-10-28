@@ -158,6 +158,9 @@ REST_FRAMEWORK = {
         "anon": env("THROTTLE_ANON", default="600/hour"),
         "user": env("THROTTLE_USER", default="1000/hour"),
         "login": env("THROTTLE_LOGIN", default="5/min"),
+        # Cadastre-se cria imobiliária: poucas por hora bastam para gente de
+        # verdade e travam robô criando tenant em massa.
+        "cadastro": env("THROTTLE_CADASTRO", default="10/hour"),
         # Renovação de sessão tem balde próprio: a SPA renova a cada carga de
         # página, e esse tráfego não pode competir com a navegação anônima nem
         # bloquear quem acabou de sair e entrar de novo.
@@ -297,7 +300,11 @@ UNFOLD = {
                 "title": "Carteira",
                 "separator": True,
                 "items": [
-                    {"title": "Imóveis", "icon": "home_work", "link": "/admin/imoveis/imovel/"},
+                    {
+                        "title": "Imóveis",
+                        "icon": "home_work",
+                        "link": "/admin/imoveis/imovel/",
+                    },
                     {"title": "Pessoas", "icon": "group", "link": "/admin/pessoas/pessoa/"},
                 ],
             },
@@ -312,6 +319,16 @@ UNFOLD = {
                         "icon": "description",
                         "link": "/admin/contratos/contrato/",
                     },
+                    {
+                        "title": "Atendimentos",
+                        "icon": "support_agent",
+                        "link": "/admin/atendimento/ticket/",
+                    },
+                    {
+                        "title": "Candidaturas",
+                        "icon": "assignment_ind",
+                        "link": "/admin/candidaturas/candidatura/",
+                    },
                 ],
             },
             {
@@ -323,7 +340,11 @@ UNFOLD = {
                         "icon": "request_quote",
                         "link": "/admin/locacao/cobranca/",
                     },
-                    {"title": "Repasses", "icon": "payments", "link": "/admin/locacao/repasse/"},
+                    {
+                        "title": "Repasses",
+                        "icon": "payments",
+                        "link": "/admin/locacao/repasse/",
+                    },
                     {
                         "title": "Comissões",
                         "icon": "percent",
@@ -344,6 +365,11 @@ UNFOLD = {
                         "title": "Usuários",
                         "icon": "badge",
                         "link": "/admin/accounts/usuario/",
+                    },
+                    {
+                        "title": "Auditoria",
+                        "icon": "history",
+                        "link": "/admin/core/logauditoria/",
                     },
                 ],
             },

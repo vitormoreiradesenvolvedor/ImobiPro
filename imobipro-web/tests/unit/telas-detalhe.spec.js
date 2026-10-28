@@ -20,6 +20,7 @@ import LeadDetalheView from '@/views/crm/LeadDetalheView.vue'
 import DashboardView from '@/views/dashboard/DashboardView.vue'
 import ImovelDetalheView from '@/views/imoveis/ImovelDetalheView.vue'
 import ImovelFormView from '@/views/imoveis/ImovelFormView.vue'
+import CadastroView from '@/views/auth/CadastroView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import VistoriaExecucaoView from '@/views/vistorias/VistoriaExecucaoView.vue'
 
@@ -118,6 +119,73 @@ describe('LoginView', () => {
     await tela.find('form').trigger('submit')
 
     expect(auth.login).toHaveBeenCalledWith('admin@horizonteimoveis.com.br', 'segredo')
+  })
+})
+
+describe('CadastroView', () => {
+  async function preencher(tela, senha = 'casa-nova-2026!', confirmacao = senha) {
+    const campos = tela.findAll('input')
+    const valores = [
+      'Serra Verde Imóveis Ltda',
+      'Serra Verde',
+      '12.345.678/0001-90',
+      null,
+      'Marina Costa',
+      'marina@serraverde.com.br',
+      '',
+      senha,
+      confirmacao,
+    ]
+    for (const [i, valor] of valores.entries()) {
+      if (valor !== null) await campos[i].setValue(valor)
+    }
+  }
+
+  it('sugere o endereço do site a partir do nome fantasia', async () => {
+    const tela = montar(CadastroView)
+    await preencher(tela)
+
+    expect(tela.findAll('input')[3].element.value).toBe('serra-verde')
+  })
+
+  it('envia os dados sem a confirmação e vai ao painel', async () => {
+    const tela = montar(CadastroView)
+    const auth = useAuthStore()
+    auth.cadastrar = vi.fn().mockResolvedValue(true)
+    push.mockClear()
+
+    await preencher(tela)
+    await tela.find('form').trigger('submit')
+    await flushPromises()
+
+    const enviado = auth.cadastrar.mock.calls[0][0]
+    expect(enviado).toMatchObject({
+      subdominio: 'serra-verde',
+      email: 'marina@serraverde.com.br',
+    })
+    expect(enviado).not.toHaveProperty('confirmacao')
+    expect(push).toHaveBeenCalledWith({ name: 'dashboard' })
+  })
+
+  it('não envia quando as senhas não conferem', async () => {
+    const tela = montar(CadastroView)
+    const auth = useAuthStore()
+    auth.cadastrar = vi.fn()
+
+    await preencher(tela, 'casa-nova-2026!', 'outra-senha-123')
+    await tela.find('form').trigger('submit')
+
+    expect(auth.cadastrar).not.toHaveBeenCalled()
+    expect(tela.text()).toContain('As senhas não conferem.')
+  })
+
+  it('mostra o erro de cada campo devolvido pela API', async () => {
+    const tela = montar(CadastroView)
+    const auth = useAuthStore()
+    auth.errosCampos = { email: ['Já existe uma conta com este e-mail.'] }
+    await flushPromises()
+
+    expect(tela.text()).toContain('Já existe uma conta com este e-mail.')
   })
 })
 

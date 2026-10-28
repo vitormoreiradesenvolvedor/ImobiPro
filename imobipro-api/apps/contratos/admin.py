@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from unfold.admin import ModelAdmin, TabularInline
 
 from apps.contratos.models import (
@@ -62,3 +61,4 @@ class ConfiguracaoComissaoAdmin(ModelAdmin):
         "rateio_vendedor",
         "rateio_imobiliaria",
     ]
+    list_filter = ["tenant"]

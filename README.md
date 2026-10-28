@@ -1,11 +1,26 @@
 # ImobiPro
 
-Sistema de gestão imobiliária **Django REST Framework** (API) + **Vue 3** (SPA).
-Arquitetura e escopo completos em [`HANDOFF.md`](./HANDOFF.md).
+Sistema de gestão para imobiliárias, feito com **Django** e **Django REST
+Framework** no back-end e **Vue 3** no front-end.
 
-Estado: **Sprints 0 a 9 entregues** captação, CRM com SLA, contratos, locação,
-vistorias, financeiro, relatórios e integrações, com o painel completo no front,
-mais o **guia de uso gamificado** (tours guiados e missões conferidas no dado real).
+## Descrição do projeto
+
+O ImobiPro reúne em um só lugar o trabalho de uma imobiliária, da captação do
+imóvel ao repasse do aluguel para o proprietário. A imobiliária se cadastra
+sozinha, convida a equipe e cada pessoa enxerga só o que o seu papel permite.
+O sistema tem quatro áreas:
+
+- **Painel da imobiliária** (área administrativa, exige login): carteira de
+  imóveis e pessoas, funil de vendas, agenda, contratos, cobranças, repasses,
+  comissões, vistorias, relatórios e configurações.
+- **Django Admin** (exige login de equipe): todas as tabelas do banco, com tema
+  Unfold, busca e filtros.
+- **Portal do inquilino** (área do usuário final, exige login): contrato,
+  boletos, chamados de manutenção e assinatura de laudo.
+- **Site público** de cada imobiliária: catálogo, ficha do imóvel com mapa e
+  pedido de visita.
+
+Arquitetura, modelagem e regras de negócio detalhadas em [`HANDOFF.md`](./HANDOFF.md).
 
 ## Integrantes do grupo
 
@@ -38,10 +53,17 @@ Disciplina de Programação WEB, UFLA, 2026/2.
 
 ## Funcionalidades principais
 
-- Autenticação por e-mail e senha, com JWT de acesso curto e renovação em cookie.
-- Seis papéis com permissões distintas: superadmin, administrador, gerente,
-  corretor, financeiro e inquilino. O corretor não alcança o financeiro nem
-  digitando o endereço.
+- Login, logout e **cadastre-se**: a imobiliária cria a conta em `/cadastro` e
+  entra como administradora; a equipe é convidada depois, pelo painel.
+- Autenticação por e-mail (usuário) e senha, com JWT de acesso curto e
+  renovação em cookie HttpOnly.
+- Sete papéis com permissões distintas: superadmin, administrador, gerente,
+  corretor, financeiro, proprietário e inquilino. O corretor não alcança o
+  financeiro nem digitando o endereço.
+- CRUD de todas as entidades principais (imóveis, pessoas, leads, contratos,
+  cobranças, vistorias, usuários) no painel e no Django Admin.
+- Django Admin personalizado com tema Unfold: todas as tabelas registradas, com
+  filtros, busca e navegação por módulo.
 - Carteira de imóveis com fotos, mídia, publicação, busca textual e mapa.
 - Funil de vendas com prazo de primeiro contato cobrado pelo sistema.
 - Contratos que, ao serem ativados, tiram o imóvel do mercado, geram comissões
@@ -56,12 +78,26 @@ Disciplina de Programação WEB, UFLA, 2026/2.
 - Tema claro e escuro em toda a interface, seguindo o sistema operacional na
   primeira visita e guardando a escolha depois.
 
-## Subir o ambiente
+## Instalação
+
+Pré-requisitos: Git, Docker e Docker Compose. Banco (PostgreSQL), Redis e
+dependências de Python e Node rodam nos contêineres, sem instalar nada na máquina.
 
 ```bash
+git clone https://github.com/vitormoreiradesenvolvedor/ImobiPro.git
+cd ImobiPro
 cp imobipro-api/.env.example imobipro-api/.env   # ajuste SECRET_KEY se quiser
-docker compose up --build
+docker compose build
 ```
+
+## Execução
+
+```bash
+docker compose up -d
+```
+
+Para parar: `docker compose down`. Para acompanhar os logs da API:
+`docker compose logs -f api`.
 
 Portas do host ocupadas? Todas são sobrescrevíveis:
 
@@ -76,6 +112,8 @@ cookie HttpOnly de refresh funcionar.
 |---|---|
 | http://localhost:8080/home | Porta de entrada: escolha entre a vitrine e o painel |
 | http://localhost:8080 | Painel da imobiliária |
+| http://localhost:8080/login | Login |
+| http://localhost:8080/cadastro | Cadastre-se (nova imobiliária) |
 | http://localhost:8080/site/horizonte | Site público da imobiliária |
 | http://localhost:8080/api/docs/ | OpenAPI (Swagger) |
 | http://localhost:8080/admin/ | Django admin |
@@ -310,8 +348,8 @@ imobipro-web/          Vue 3 + Vite + Pinia + Tailwind 4
   src/components/onboarding/  spotlight, balão do tour, painel de missões
   src/composables/     listagem paginada, toast, confirmação
   src/onboarding/      roteiro dos tours guiados (passos e alvos)
-  tests/unit/          132 testes de componente e store
-  tests/e2e/           39 testes de navegação em Chromium
+  tests/unit/          testes de componente e store (Vitest)
+  tests/e2e/           testes de navegação em Chromium (Playwright)
 nginx/dev.conf         borda de desenvolvimento (origem única)
 scripts/qualidade.sh   pipeline local de qualidade
 ```

@@ -17,9 +17,9 @@ from apps.locacao.services import (
     executar_etapa_da_regua,
     gerar_cobranca,
     gerar_repasse,
-    primeiro_dia,
     indicadores_de_inadimplencia,
     liquidar_repasse,
+    primeiro_dia,
 )
 from apps.pessoas.tests.factories import PessoaFactory
 

@@ -17,6 +17,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from apps.accounts.models import Tenant
 from apps.accounts.permissions import PodeGerenciarUsuarios
 from apps.accounts.serializers import (
+    CadastroSerializer,
     ConfirmacaoResetSenhaSerializer,
     IdentidadePublicaSerializer,
     LoginSerializer,
@@ -65,6 +66,39 @@ class LoginView(TokenObtainPairView):
         if refresh:
             _gravar_cookie_refresh(resposta, refresh)
         return resposta
+
+
+@extend_schema(
+    request=CadastroSerializer,
+    responses={201: OpenApiResponse(description="Conta criada e sessão aberta")},
+)
+class CadastroView(APIView):
+    """POST /api/v1/auth/cadastro/ → cria imobiliária + admin e já entra.
+
+    A resposta tem o mesmo formato do login ({access, user} e refresh em
+    cookie), para a SPA seguir direto ao painel sem pedir a senha de novo.
+    """
+
+    serializer_class = CadastroSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "cadastro"
+
+    def post(self, request):
+        serializer = CadastroSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        usuario = serializer.save()
+
+        refresh = LoginSerializer.get_token(usuario)
+        resposta = Response(
+            {
+                "access": str(refresh.access_token),
+                "user": PerfilSerializer(usuario, context={"request": request}).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+        return _gravar_cookie_refresh(resposta, str(refresh))
 
 
 @extend_schema(
