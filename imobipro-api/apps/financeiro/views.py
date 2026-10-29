@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -196,6 +197,7 @@ class ResumoFinanceiroView(APIView):
 
     permission_classes = [AcessoAoPainel, PodeVerFinanceiro]
 
+    @extend_schema(responses=OpenApiTypes.OBJECT)
     def get(self, request):
         from apps.locacao.services import indicadores_de_inadimplencia
 

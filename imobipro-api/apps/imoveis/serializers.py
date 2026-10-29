@@ -126,7 +126,7 @@ class ImovelListSerializer(serializers.ModelSerializer):
             "criado_em",
         ]
 
-    def get_foto_capa(self, imovel):
+    def get_foto_capa(self, imovel) -> str | None:
         foto = imovel.foto_capa
         if not foto:
             return None
@@ -216,7 +216,7 @@ class ImovelDetailSerializer(serializers.ModelSerializer):
             "atualizado_em",
         ]
 
-    def get_pendencias_publicacao(self, imovel):
+    def get_pendencias_publicacao(self, imovel) -> list[str]:
         return imovel.pendencias_para_publicar()
 
     def validate(self, attrs):

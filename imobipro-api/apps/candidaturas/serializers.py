@@ -96,13 +96,13 @@ class CandidaturaDetailSerializer(CandidaturaListSerializer):
             "decidido_em",
         ]
 
-    def get_documentos_pendentes(self, candidatura):
+    def get_documentos_pendentes(self, candidatura) -> list[dict]:
         return [
             {"valor": tipo.value, "rotulo": tipo.label}
             for tipo in candidatura.documentos_pendentes
         ]
 
-    def get_link_do_cliente(self, candidatura):
+    def get_link_do_cliente(self, candidatura) -> str:
         """URL que o corretor manda no WhatsApp para o pretendente."""
 
         requisicao = self.context.get("request")
@@ -184,7 +184,7 @@ class PortalCandidaturaSerializer(serializers.ModelSerializer):
             "criado_em",
         ]
 
-    def get_documentos(self, candidatura):
+    def get_documentos(self, candidatura) -> list[dict]:
         return [
             {
                 "id": str(documento.id),
@@ -198,13 +198,13 @@ class PortalCandidaturaSerializer(serializers.ModelSerializer):
             for documento in candidatura.documentos.all()
         ]
 
-    def get_documentos_pendentes(self, candidatura):
+    def get_documentos_pendentes(self, candidatura) -> list[dict]:
         return [
             {"valor": tipo.value, "rotulo": tipo.label}
             for tipo in candidatura.documentos_pendentes
         ]
 
-    def get_eventos(self, candidatura):
+    def get_eventos(self, candidatura) -> list[dict]:
         return EventoCandidaturaSerializer(
             [e for e in candidatura.eventos.all() if e.visivel_ao_cliente], many=True
         ).data
