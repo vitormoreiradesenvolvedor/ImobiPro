@@ -71,7 +71,7 @@ class CobrancaSerializer(serializers.ModelSerializer):
             "criado_em",
         ]
 
-    def get_inquilino(self, cobranca):
+    def get_inquilino(self, cobranca) -> str | None:
         locatario = cobranca.contrato.locatario
         return locatario.pessoa.nome if locatario else None
 
@@ -130,7 +130,7 @@ class RepasseSerializer(serializers.ModelSerializer):
             "criado_em",
         ]
 
-    def get_proprietario(self, repasse):
+    def get_proprietario(self, repasse) -> str:
         return repasse.contrato.imovel.proprietario.nome
 
 

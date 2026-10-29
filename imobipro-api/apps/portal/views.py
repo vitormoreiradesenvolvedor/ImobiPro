@@ -5,6 +5,7 @@ que veio do navegador. É isso que impede um inquilino de ver o contrato do
 vizinho trocando um id na URL.
 """
 
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
@@ -34,6 +35,12 @@ class BaseDoCliente(viewsets.GenericViewSet):
     def pessoa(self):
         return self.request.user.pessoa
 
+    @property
+    def gerando_schema(self):
+        # O drf-spectacular chama get_queryset sem usuário logado para montar
+        # o OpenAPI; ali só o modelo importa, não os dados do cliente.
+        return getattr(self, "swagger_fake_view", False)
+
     def contratos_do_cliente(self):
         return Contrato.objects.filter(
             tenant=self.request.user.tenant,
@@ -49,6 +56,8 @@ class MeusContratosViewSet(BaseDoCliente, viewsets.mixins.ListModelMixin):
     serializer_class = ContratoDoClienteSerializer
 
     def get_queryset(self):
+        if self.gerando_schema:
+            return Contrato.objects.none()
         return (
             self.contratos_do_cliente()
             .select_related("imovel", "imovel__endereco")
@@ -61,6 +70,8 @@ class MinhasCobrancasViewSet(BaseDoCliente, viewsets.mixins.ListModelMixin):
     serializer_class = CobrancaDoClienteSerializer
 
     def get_queryset(self):
+        if self.gerando_schema:
+            return Cobranca.objects.none()
         return (
             Cobranca.objects.filter(contrato__in=self.contratos_do_cliente())
             .select_related("contrato")
@@ -72,6 +83,8 @@ class MinhasVistoriasViewSet(BaseDoCliente, viewsets.mixins.ListModelMixin):
     serializer_class = VistoriaDoClienteSerializer
 
     def get_queryset(self):
+        if self.gerando_schema:
+            return Vistoria.objects.none()
         return Vistoria.objects.filter(contrato__in=self.contratos_do_cliente()).order_by(
             "-realizada_em"
         )
@@ -83,6 +96,8 @@ class MeusChamadosViewSet(
     serializer_class = ChamadoDoClienteSerializer
 
     def get_queryset(self):
+        if self.gerando_schema:
+            return Ticket.objects.none()
         return (
             Ticket.objects.filter(
                 tenant=self.request.user.tenant,
@@ -133,6 +148,7 @@ class ResumoDoClienteView(APIView):
 
     permission_classes = [IsAuthenticated, EhClienteComAcesso]
 
+    @extend_schema(responses=OpenApiTypes.OBJECT)
     def get(self, request):
         pessoa = request.user.pessoa
         contratos = Contrato.objects.filter(

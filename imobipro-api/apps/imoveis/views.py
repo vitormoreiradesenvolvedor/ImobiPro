@@ -412,6 +412,9 @@ class ImovelPublicoViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ["valor_venda", "valor_locacao", "criado_em"]
 
     def get_queryset(self):
+        # Montagem do OpenAPI: não há subdomínio na URL, só o modelo importa.
+        if getattr(self, "swagger_fake_view", False):
+            return Imovel.objects.none()
         consulta = (
             Imovel.objects.filter(
                 tenant__subdominio=self.kwargs["subdominio"],

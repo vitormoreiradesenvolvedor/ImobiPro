@@ -165,7 +165,7 @@ class ContratoDetailSerializer(serializers.ModelSerializer):
             "atualizado_em",
         ]
 
-    def get_pendencias_ativacao(self, contrato):
+    def get_pendencias_ativacao(self, contrato) -> list[str]:
         from apps.contratos.services import validar_para_ativacao
 
         return validar_para_ativacao(contrato) if contrato.status == "RASCUNHO" else []
