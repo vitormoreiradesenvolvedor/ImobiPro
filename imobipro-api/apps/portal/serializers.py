@@ -15,6 +15,7 @@ class ContratoDoClienteSerializer(serializers.ModelSerializer):
     imovel_titulo = serializers.CharField(source="imovel.titulo", read_only=True)
     imovel_endereco = serializers.SerializerMethodField()
     papel_no_contrato = serializers.SerializerMethodField()
+    proximo_reajuste_em = serializers.DateField(read_only=True, allow_null=True)
 
     class Meta:
         model = Contrato
@@ -37,12 +38,12 @@ class ContratoDoClienteSerializer(serializers.ModelSerializer):
             "papel_no_contrato",
         ]
 
-    def get_imovel_endereco(self, contrato):
+    def get_imovel_endereco(self, contrato) -> str:
         endereco = contrato.imovel.endereco
         rua = ", ".join(filter(None, [endereco.logradouro, endereco.numero]))
         return f"{rua} · {endereco.bairro} · {endereco.cidade}/{endereco.uf}"
 
-    def get_papel_no_contrato(self, contrato):
+    def get_papel_no_contrato(self, contrato) -> str:
         pessoa = self.context.get("pessoa")
         parte = contrato.partes.filter(pessoa=pessoa).first()
         return parte.get_papel_display() if parte else ""
@@ -79,6 +80,8 @@ class CobrancaDoClienteSerializer(serializers.ModelSerializer):
 class VistoriaDoClienteSerializer(serializers.ModelSerializer):
     tipo_display = serializers.CharField(source="get_tipo_display", read_only=True)
     status_display = serializers.CharField(source="get_status_display", read_only=True)
+    total_itens = serializers.IntegerField(read_only=True)
+    itens_com_problema = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Vistoria
@@ -115,7 +118,7 @@ class ChamadoDoClienteSerializer(serializers.ModelSerializer):
             "eventos",
         ]
 
-    def get_eventos(self, ticket):
+    def get_eventos(self, ticket) -> list[dict]:
         return [
             {
                 "descricao": evento.descricao,

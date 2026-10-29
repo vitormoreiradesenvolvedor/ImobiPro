@@ -326,10 +326,16 @@ class ComissaoViewSet(
 class ConfiguracaoComissaoView(viewsets.ViewSet):
     """Tabela de comissão da imobiliária (Configurações)."""
 
+    serializer_class = ConfiguracaoComissaoSerializer
+
+    @extend_schema(responses=ConfiguracaoComissaoSerializer)
     def list(self, request):
         config = configuracao_comissao(request.user.tenant)
         return Response(ConfiguracaoComissaoSerializer(config).data)
 
+    @extend_schema(
+        request=ConfiguracaoComissaoSerializer, responses=ConfiguracaoComissaoSerializer
+    )
     def create(self, request):
         if request.user.papel not in {Papel.ADMIN, Papel.SUPERADMIN}:
             raise ValidationError({"detail": "Só o administrador altera a tabela."})

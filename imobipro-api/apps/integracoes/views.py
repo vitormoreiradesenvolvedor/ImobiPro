@@ -39,7 +39,7 @@ class IntegracaoPortalSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "ultima_sincronizacao", "total_publicados"]
         extra_kwargs = {"segredo_webhook": {"read_only": True}}
 
-    def get_url_webhook(self, integracao):
+    def get_url_webhook(self, integracao) -> str:
         requisicao = self.context.get("request")
         caminho = (
             f"/api/v1/leads/webhook/{integracao.portal}/{integracao.tenant.subdominio}/"

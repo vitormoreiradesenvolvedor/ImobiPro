@@ -113,7 +113,7 @@ class AcompanhamentoSerializer(serializers.ModelSerializer):
             "eventos",
         ]
 
-    def get_eventos(self, ticket):
+    def get_eventos(self, ticket) -> list[dict]:
         publicos = [e for e in ticket.eventos.all() if e.visivel_ao_cliente]
         return EventoTicketSerializer(publicos, many=True).data
 
