@@ -31,6 +31,9 @@ export default defineConfig({
     globals: true,
     include: ['tests/unit/**/*.spec.js'],
     setupFiles: ['tests/setup.js'],
+    // Os testes conferem horários de Brasília; sem fixar o fuso, a máquina do
+    // CI (UTC) mostraria 17:30 onde a imobiliária vê 14:30.
+    env: { TZ: 'America/Sao_Paulo' },
     coverage: {
       provider: 'v8',
       // lcov alimenta o SonarQube; text mantém o resumo no terminal.
