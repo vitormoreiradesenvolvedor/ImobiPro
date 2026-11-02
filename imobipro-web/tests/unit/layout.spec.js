@@ -20,11 +20,14 @@ vi.mock('vue-router', async () => {
   }
 })
 
-function montar(componente) {
+function montar(
+  componente,
+  pinia = createTestingPinia({ createSpy: vi.fn, stubActions: false }),
+) {
   const tela = mount(componente, {
     attachTo: document.body,
     global: {
-      plugins: [createTestingPinia({ createSpy: vi.fn, stubActions: false })],
+      plugins: [pinia],
       stubs: { RouterLink: { template: '<a><slot /></a>' }, RouterView: true },
     },
   })
@@ -138,13 +141,22 @@ describe('AppLayout', () => {
     const aoErrar = (evento) => erros.push(evento)
     window.addEventListener('unhandledrejection', aoErrar)
 
-    const tela = montar(AppLayout)
-    const notificacoes = useNotificacoesStore()
-    const onboarding = useOnboardingStore()
+    // As falhas são armadas antes de montar: o onMounted chama as actions na
+    // hora, e trocá-las depois deixava uma requisição real correndo além do
+    // fim do teste (no CI, mais lento, ela estourava como erro solto).
+    const pinia = createTestingPinia({ createSpy: vi.fn, stubActions: false })
+    const notificacoes = useNotificacoesStore(pinia)
+    const onboarding = useOnboardingStore(pinia)
     notificacoes.carregar = vi.fn().mockRejectedValue(new Error('401'))
+    notificacoes.conectar = vi.fn()
     onboarding.carregar = vi.fn().mockRejectedValue(new Error('401'))
+    onboarding.sugerirPrimeiroTour = vi.fn().mockRejectedValue(new Error('401'))
 
+    const tela = montar(AppLayout, pinia)
     await flushPromises()
+
+    expect(notificacoes.carregar).toHaveBeenCalled()
+    expect(onboarding.carregar).toHaveBeenCalled()
 
     expect(tela.html()).toBeTruthy()
     expect(erros).toEqual([])
